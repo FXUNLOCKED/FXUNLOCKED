@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FX Unlocked | The Fun Intro to Forex</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .font-mono-fx {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .bg-terminal {
+      background: radial-gradient(circle at top left, #0d1527 0%, #060913 60%, #030408 100%);
+    }
+    .glow-green {
+      box-shadow: 0 0 25px -5px rgba(34, 197, 94, 0.25);
+    }
+    .glow-cyan {
+      box-shadow: 0 0 25px -5px rgba(6, 182, 212, 0.2);
+    }
+    .gate-glow {
+      box-shadow: 0 0 50px -10px rgba(16, 185, 129, 0.35);
+    }
+
+    /* Unlock Sequence Animations */
+    #gate-screen.unlocked {
+      opacity: 0;
+      transform: scale(1.08) translateY(-30px);
+      filter: blur(10px);
+      pointer-events: none;
+      transition: all 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* Laser Scanner Beam */
+    .scan-beam {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, #10b981, #22d3ee, transparent);
+      box-shadow: 0 0 15px #10b981, 0 0 25px #22d3ee;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .scanning {
+      animation: scanAnim 0.85s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    @keyframes scanAnim {
+      0% { top: 0%; opacity: 0; }
+      15% { opacity: 1; }
+      85% { opacity: 1; }
+      100% { top: 100%; opacity: 0; }
+    }
+
+    /* Shockwave Ripple */
+    .shockwave {
+      position: absolute;
+      width: 64px;
+      height: 64px;
+      border-radius: 9999px;
+      border: 2px solid #34d399;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .ripple-active {
+      animation: ripple 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    @keyframes ripple {
+      0% { transform: scale(1); opacity: 0.9; }
+      100% { transform: scale(4.5); opacity: 0; }
+    }
+
+    /* Custom Chat Scrollbar */
+    #chat-messages::-webkit-scrollbar {
+      width: 4px;
+    }
+    #chat-messages::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body class="bg-terminal text-slate-100 min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-black overflow-x-hidden">
+
+  <!-- ========================================================= -->
+  <!-- LAUNCH / UNLOCK SCREEN OVERLAY -->
+  <!-- ========================================================= -->
+  <div id="gate-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-[#04060c]/98 backdrop-blur-3xl p-6 transition-all">
+    <div id="gate-card" class="max-w-md w-full text-center space-y-6 bg-slate-900/80 border border-slate-800/90 p-8 sm:p-10 rounded-3xl gate-glow relative overflow-hidden transition-all duration-500">
+      
+      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-40 h-1 bg-gradient-to-r from-transparent via-emerald-400 to-transparent"></div>
+      <div id="scan-line" class="scan-beam"></div>
+
+      <div class="relative mx-auto w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-2xl shadow-inner">
+        <div id="ripple-ring" class="shockwave"></div>
+        <span id="gate-icon" class="transition-all duration-300 transform">🔒</span>
+        <span id="ping-badge" class="absolute -top-1 -right-1 flex h-3 w-3">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+        </span>
+      </div>
+
+      <div class="space-y-2">
+        <div id="terminal-sub" class="text-[11px] font-mono tracking-widest text-emerald-400 uppercase font-semibold transition-colors duration-300">
+          Encrypted Financial Portal
+        </div>
+        <h2 class="text-3xl font-extrabold text-white tracking-tight">
+          Welcome to <br />
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400 font-mono-fx">
+            FX UNLOCKED
+          </span>
+        </h2>
+        <p class="text-xs text-slate-400 leading-relaxed pt-1">
+          Currencies, charts, and market psychology broken down in plain English.
+        </p>
+      </div>
+
+      <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-950/80 border border-slate-800 text-xs font-mono text-slate-400">
+        <span class="text-slate-500">Curated by</span>
+        <span class="text-emerald-400 font-bold">Kenyon VanHook</span>
+      </div>
+
+      <div class="pt-2 relative">
+        <button id="unlock-btn" onclick="unlockTerminal()" class="relative w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-950 font-bold font-mono text-sm tracking-wider shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/40 active:scale-[0.98] transition-all overflow-hidden flex items-center justify-center gap-2">
+          <div id="btn-progress" class="absolute left-0 top-0 bottom-0 bg-emerald-300 opacity-30 w-0 transition-all duration-300"></div>
+          <span id="btn-text" class="relative z-10 flex items-center gap-2">
+            <span>INITIALIZE & ENTER</span>
+            <span class="text-base">→</span>
+          </span>
+        </button>
+      </div>
+
+      <div id="status-footer" class="text-[10px] font-mono text-slate-600 transition-colors duration-300">
+        Status: 24/5 Global Markets Active • Ready
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- FLOATING AI ASSISTANT POPUP (BOTTOM-RIGHT) -->
+  <!-- ========================================================= -->
+  <div class="fixed bottom-6 right-6 z-40 flex flex-col items-end">
+    
+    <!-- Collapsible Chat Window -->
+    <div id="ai-chat-window" class="hidden w-[90vw] sm:w-96 bg-slate-950/95 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-xl mb-4 transition-all duration-300">
+      <!-- Chat Header -->
+      <div class="px-4 py-3 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <div class="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-sm">
+            🤖
+          </div>
+          <div>
+            <div class="flex items-center gap-1.5">
+              <span class="text-xs font-bold text-white font-mono">FX AI Mentor</span>
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            </div>
+            <span class="text-[10px] text-slate-400">Ask any trading question</span>
+          </div>
+        </div>
+        <button onclick="toggleAiChat()" class="text-slate-400 hover:text-white p-1 rounded-md text-sm">
+          ✕
+        </button>
+      </div>
+
+      <!-- Quick Question Preset Chips -->
+      <div class="px-4 pt-2.5 pb-1 border-b border-slate-900 flex gap-1.5 overflow-x-auto text-[11px] font-mono no-scrollbar">
+        <button onclick="sendQuickPrompt('What is a pip?')" class="px-2 py-0.5 rounded-md bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 whitespace-nowrap">What is a pip?</button>
+        <button onclick="sendQuickPrompt('Explain leverage')" class="px-2 py-0.5 rounded-md bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 whitespace-nowrap">Explain leverage</button>
+        <button onclick="sendQuickPrompt('What are candlesticks?')" class="px-2 py-0.5 rounded-md bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 whitespace-nowrap">Candlesticks?</button>
+        <button onclick="sendQuickPrompt('What is a spread?')" class="px-2 py-0.5 rounded-md bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-800 whitespace-nowrap">Spreads?</button>
+      </div>
+
+      <!-- Chat Messages Container -->
+      <div id="chat-messages" class="p-4 h-64 overflow-y-auto space-y-3 text-xs leading-relaxed">
+        <div class="flex items-start gap-2">
+          <div class="w-6 h-6 rounded-md bg-emerald-500/20 text-xs flex items-center justify-center flex-shrink-0">🤖</div>
+          <div class="bg-slate-900 text-slate-200 p-2.5 rounded-xl rounded-tl-none border border-slate-800">
+            Hey Kenyon! I'm your AI Forex assistant. Feel free to ask about any term, pattern, or how currency pairs work!
+          </div>
+        </div>
+      </div>
+
+      <!-- Input Area -->
+      <form onsubmit="handleChatSubmit(event)" class="p-2.5 bg-slate-900/60 border-t border-slate-800 flex items-center gap-2">
+        <input 
+          id="chat-input"
+          type="text" 
+          placeholder="Ask e.g. 'How does lot size work?'..." 
+          class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 font-mono"
+        />
+        <button type="submit" class="px-3 py-2 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-xs font-mono transition">
+          Send
+        </button>
+      </form>
+    </div>
+
+    <!-- Floating Chat Trigger Button -->
+    <button 
+      id="ai-trigger-btn"
+      onclick="toggleAiChat()" 
+      class="group flex items-center gap-2 px-4 py-3 bg-slate-900/90 hover:bg-slate-800 border border-emerald-500/40 hover:border-emerald-400 rounded-full shadow-lg shadow-emerald-500/10 hover:shadow-emerald-500/20 transition-all backdrop-blur-md"
+    >
+      <div class="relative flex items-center justify-center">
+        <span class="text-lg">🤖</span>
+        <span class="absolute -top-1 -right-1 flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+        </span>
+      </div>
+      <span class="text-xs font-mono font-bold text-emerald-300 group-hover:text-emerald-200">Ask AI Mentor</span>
+    </button>
+
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- MAIN APPLICATION CONTENT -->
+  <!-- ========================================================= -->
+
+  <!-- Top Navigation Bar -->
+  <nav class="max-w-7xl mx-auto w-full px-6 py-6 flex items-center justify-between border-b border-slate-800/80 sticky top-0 bg-slate-950/80 backdrop-blur-md z-30">
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center text-emerald-400 font-bold">
+        $
+      </div>
+      <span class="font-bold text-xl tracking-tight text-white">FX<span class="text-emerald-400">UNLOCKED</span></span>
+    </div>
+    
+    <div class="flex items-center gap-3">
+      <span class="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Markets Live 24/5
+      </span>
+      <button onclick="toggleNewsDrawer(true)" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/30 transition">
+        <span>📰</span> Live Wire News
+      </button>
+    </div>
+  </nav>
+
+  <!-- Slide-Over Live News Drawer -->
+  <div id="news-drawer" class="fixed inset-0 z-50 flex justify-end bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="w-full max-w-md bg-slate-950 border-l border-slate-800 h-full p-6 flex flex-col justify-between overflow-y-auto">
+      <div>
+        <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
+          <div class="flex items-center gap-2">
+            <span class="text-lg">📡</span>
+            <h3 class="font-bold font-mono text-white text-base">Global FX News Stream</h3>
+          </div>
+          <button onclick="toggleNewsDrawer(false)" class="p-1.5 rounded-lg bg-slate-900 text-slate-400 hover:text-white border border-slate-800">✕</button>
+        </div>
+        <p class="text-xs text-slate-400 mb-4">Real-time macro statements and updates directly from major market timelines.</p>
+        
+        <div class="tradingview-widget-container h-[550px] rounded-xl overflow-hidden border border-slate-800">
+          <iframe 
+            src="https://www.tradingview-widget.com/embed-widget/timeline/?locale=en#%7B%22feedMode%22%3A%22all_symbols%22%2C%22isTransparent%22%3Atrue%2C%22displayMode%22%3A%22regular%22%2C%22width%22%3A%22100%25%22%2C%22height%22%3A%22100%25%22%2C%22colorTheme%22%3A%22dark%22%7D" 
+            style="width: 100%; height: 100%; border: none;">
+          </iframe>
+        </div>
+      </div>
+      <div class="pt-4 text-center">
+        <button onclick="toggleNewsDrawer(false)" class="w-full py-2 bg-slate-900 border border-slate-800 rounded-lg text-xs font-mono text-slate-400 hover:text-white">
+          Close Feed
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Container -->
+  <main class="max-w-7xl mx-auto px-6 py-10 flex-1 space-y-16">
+    
+    <!-- Hero Section -->
+    <div class="max-w-3xl space-y-4">
+      <div class="text-xs uppercase tracking-widest font-mono text-emerald-400 font-semibold">Forex 101 • No Boring Textbooks</div>
+      <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+        Trading currencies sounds complicated. <br />
+        <span class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-cyan-400">It really isn't.</span>
+      </h1>
+      
+      <div class="flex items-center gap-2 text-sm font-mono text-slate-400">
+        <span class="text-slate-500">By</span>
+        <span class="text-emerald-400 font-semibold tracking-wide">Kenyon VanHook</span>
+      </div>
+
+      <p class="text-slate-400 text-base sm:text-lg">
+        Ever traded USD for Euros before a vacation? Congratulations, you’ve already traded Forex. In the markets, it’s just betting whether one currency gets stronger or weaker against another.
+      </p>
+    </div>
+
+    <!-- What Is Forex Overview -->
+    <section class="bg-slate-900/50 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6">
+      <div class="max-w-2xl">
+        <div class="text-xs font-mono uppercase tracking-widest text-emerald-400 font-semibold">The 60-Second Primer</div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-1">What is Forex, Really?</h2>
+        <p class="text-slate-400 text-sm mt-2 leading-relaxed">
+          Short for <strong class="text-slate-200">Foreign Exchange</strong> (or <strong class="text-emerald-400">FX</strong>), Forex is the global marketplace where world currencies are traded. With over <strong class="text-white font-mono">$7 trillion</strong> exchanged daily, it is the largest and most liquid financial market on Earth—dwarfing all stock markets combined.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+        <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800/80">
+          <div class="text-xs font-mono text-emerald-400 font-bold mb-1">1. The Currency Swap</div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Forex trades in <strong>pairs</strong>. When you execute a trade, you simultaneously buy one nation's currency while selling another's.
+          </p>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800/80">
+          <div class="text-xs font-mono text-cyan-400 font-bold mb-1">2. Continuous Shifts</div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Values constantly move based on interest rates, inflation, job reports, and geopolitical news. Traders profit by anticipating these changes.
+          </p>
+        </div>
+
+        <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800/80">
+          <div class="text-xs font-mono text-amber-400 font-bold mb-1">3. The 24/5 Rhythm</div>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            Global banking hubs pass trading volumes around the clock: Sydney → Tokyo → London → New York, non-stop Sunday evening through Friday.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Live Market Section (TradingView BTC Chart) -->
+    <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-6 glow-green">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-4 border-b border-slate-800">
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xl font-bold text-white font-mono-fx">BTC / USD</span>
+            <span class="text-xs bg-amber-400/10 border border-amber-400/20 text-amber-300 px-2 py-0.5 rounded font-mono">Live Feed</span>
+          </div>
+          <p class="text-xs text-slate-400 mt-0.5">Bitcoin priced in US Dollars (TradingView Live Widget)</p>
+        </div>
+        <div class="text-xs font-mono text-slate-400">
+          Forex runs in pairs: [Base] / [Quote]
+        </div>
+      </div>
+
+      <div class="tradingview-widget-container h-[420px] w-full rounded-xl overflow-hidden border border-slate-800">
+        <div id="tradingview_chart" class="h-full w-full"></div>
+      </div>
+    </div>
+
+    <!-- Candlestick Anatomy Section -->
+    <div class="bg-slate-900/70 border border-cyan-900/40 rounded-3xl p-6 sm:p-8 glow-cyan">
+      <div class="max-w-2xl mb-8">
+        <div class="text-xs font-mono uppercase tracking-widest text-cyan-400 font-semibold">Visual Anatomy</div>
+        <h2 class="text-3xl font-extrabold text-white mt-1">Cracking the Code: The Candlestick</h2>
+        <p class="text-slate-400 text-sm mt-2">
+          Candlesticks reflect the real-time fight between buyers (bulls) and sellers (bears). Each candle has a rectangular <strong>Real Body</strong> and thin <strong>Wicks (Shadows)</strong>.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div class="lg:col-span-6 bg-slate-950/80 border border-slate-800 rounded-2xl p-6 flex flex-col items-center">
+          <div class="flex gap-3 mb-4 w-full max-w-xs">
+            <button onclick="switchCandleType('bullish')" id="btn-candle-bullish" class="flex-1 py-2 px-3 rounded-lg text-xs font-mono font-bold border border-emerald-500 bg-emerald-500/20 text-emerald-300 transition">
+              Bullish (Green)
+            </button>
+            <button onclick="switchCandleType('bearish')" id="btn-candle-bearish" class="flex-1 py-2 px-3 rounded-lg text-xs font-mono font-bold border border-slate-800 bg-slate-900 text-slate-400 hover:border-slate-700 transition">
+              Bearish (Red)
+            </button>
+          </div>
+
+          <div class="w-full max-w-sm h-72 relative flex items-center justify-center">
+            <svg id="candle-svg" viewBox="0 0 300 240" class="w-full h-full"></svg>
+          </div>
+          <div class="text-xs font-mono text-slate-500 text-center mt-1">
+            Thick block = "Body" • Thin lines = "Wicks"
+          </div>
+        </div>
+
+        <div class="lg:col-span-6 space-y-3">
+          <div class="p-3.5 rounded-xl border border-slate-800 bg-slate-900/40">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+              <span class="text-xs font-mono font-bold text-cyan-300">UPPER WICK / HIGH</span>
+            </div>
+            <p class="text-xs text-slate-300 mt-1">The tip of the wick shows the highest price buyers achieved before meeting seller resistance.</p>
+          </div>
+
+          <div class="p-3.5 rounded-xl border border-slate-800 bg-slate-900/40">
+            <div class="flex items-center gap-2">
+              <span id="body-dot" class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+              <span id="body-title" class="text-xs font-mono font-bold text-emerald-300">REAL BODY</span>
+            </div>
+            <p id="body-desc" class="text-xs text-slate-300 mt-1">Shows the net move. In a green candle, the <strong>Open is at the bottom</strong> and the <strong>Close is at the top</strong>.</p>
+          </div>
+
+          <div class="p-3.5 rounded-xl border border-slate-800 bg-slate-900/40">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-purple-400"></span>
+              <span class="text-xs font-mono font-bold text-purple-300">LOWER WICK / LOW</span>
+            </div>
+            <p class="text-xs text-slate-300 mt-1">The bottom tail shows the deepest bargain price before buyers jumped back in.</p>
+          </div>
+
+          <div id="candle-summary" class="p-3.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-xs text-slate-300">
+            <strong>Key Rule:</strong> Green candle = Buyers pushed price up (Close > Open). Red candle = Sellers dragged it down (Close < Open).
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Fundamental vs. Technical Analysis -->
+    <section class="bg-slate-900/60 border border-slate-800 rounded-3xl p-6 sm:p-8">
+      <div class="max-w-2xl mb-6">
+        <div class="text-xs font-mono uppercase tracking-widest text-emerald-400 font-semibold">The Two Schools of Thought</div>
+        <h2 class="text-3xl font-extrabold text-white mt-1">Fundamental vs. Technical Analysis</h2>
+        <p class="text-slate-400 text-sm mt-2">
+          Every trader relies on one of these styles (or combines both) to decide when to pull the trigger.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="p-6 rounded-2xl bg-slate-950/80 border border-slate-800 relative hover:border-emerald-500/50 transition">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-2xl">🏛️</span>
+            <span class="px-2.5 py-0.5 rounded text-xs font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">The Macro View</span>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-2">Fundamental Analysis</h3>
+          <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+            Studies economic health, central bank interest rates, and geopolitical shifts. Asks: <em>"Why is this currency moving?"</em>
+          </p>
+          <div class="space-y-2 text-xs font-mono border-t border-slate-800/80 pt-4 text-slate-300">
+            <div><strong class="text-slate-400">Primary Catalysts:</strong> Interest Rates, CPI (Inflation), GDP, Non-Farm Payrolls.</div>
+            <div><strong class="text-slate-400">Ideal For:</strong> Long-term swing traders & macro position holders.</div>
+            <div class="p-3 bg-emerald-950/20 rounded-lg text-emerald-300 mt-2">
+              💡 <em>Example:</em> If the US Federal Reserve hikes interest rates, international investors often buy USD for higher yields, driving the Dollar up.
+            </div>
+          </div>
+        </div>
+
+        <div class="p-6 rounded-2xl bg-slate-950/80 border border-slate-800 relative hover:border-cyan-500/50 transition">
+          <div class="flex items-center justify-between mb-4">
+            <span class="text-2xl">📐</span>
+            <span class="px-2.5 py-0.5 rounded text-xs font-mono bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">The Tape Reader</span>
+          </div>
+          <h3 class="text-xl font-bold text-white mb-2">Technical Analysis</h3>
+          <p class="text-xs text-slate-400 mb-4 leading-relaxed">
+            Studies pure price action, chart patterns, volume, and statistics. Asks: <em>"Where is price going next, and where do I place my stop?"</em>
+          </p>
+          <div class="space-y-2 text-xs font-mono border-t border-slate-800/80 pt-4 text-slate-300">
+            <div><strong class="text-slate-400">Primary Tools:</strong> Support/Resistance, Trendlines, Candlesticks, Moving Averages.</div>
+            <div><strong class="text-slate-400">Ideal For:</strong> Day traders, scalpers, and intermediate breakout traders.</div>
+            <div class="p-3 bg-cyan-950/20 rounded-lg text-cyan-300 mt-2">
+              💡 <em>Example:</em> If EUR/USD bounces off a key support line three times in a row, a technical trader buys with a stop-loss just below that floor.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Basic Chart Patterns Playbook -->
+    <section class="bg-slate-900/70 border border-slate-800 rounded-3xl p-6 sm:p-8">
+      <div class="max-w-2xl mb-8">
+        <div class="text-xs font-mono uppercase tracking-widest text-cyan-400 font-semibold">Pattern Playbook</div>
+        <h2 class="text-3xl font-extrabold text-white mt-1">3 Essential Chart Patterns</h2>
+        <p class="text-slate-400 text-sm mt-2">
+          Patterns reflect human crowd psychology repeating itself on charts. Click through three of the most traded patterns:
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        <div class="lg:col-span-5 space-y-3">
+          <button onclick="selectPattern('doubleBottom')" id="btn-pat-db" class="w-full text-left p-4 rounded-xl border border-emerald-500 bg-emerald-500/10 transition">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-sm text-white">1. The Double Bottom ("W")</span>
+              <span class="text-xs font-mono text-emerald-400 font-semibold">Bullish Reversal</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">Sellers try twice to break a floor and fail, triggering a major reversal up.</p>
+          </button>
+
+          <button onclick="selectPattern('headShoulders')" id="btn-pat-hs" class="w-full text-left p-4 rounded-xl border border-slate-800 bg-slate-950/40 hover:border-slate-700 transition">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-sm text-white">2. Head & Shoulders</span>
+              <span class="text-xs font-mono text-rose-400 font-semibold">Bearish Reversal</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">Buyers make three attempts with a higher middle peak, but exhaust momentum.</p>
+          </button>
+
+          <button onclick="selectPattern('bullFlag')" id="btn-pat-bf" class="w-full text-left p-4 rounded-xl border border-slate-800 bg-slate-950/40 hover:border-slate-700 transition">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-sm text-white">3. The Bull Flag</span>
+              <span class="text-xs font-mono text-cyan-400 font-semibold">Continuation</span>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">A sharp explosive rally followed by a resting pause before another leg up.</p>
+          </button>
+        </div>
+
+        <div class="lg:col-span-7 bg-slate-950 border border-slate-800 rounded-2xl p-6 flex flex-col justify-between h-80">
+          <div class="flex justify-between items-center pb-3 border-b border-slate-800">
+            <span id="pattern-badge" class="text-xs font-mono font-bold px-2.5 py-1 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+              Double Bottom Setup
+            </span>
+            <span class="text-xs font-mono text-slate-500">How to Trade It</span>
+          </div>
+
+          <div class="h-44 w-full flex items-center justify-center">
+            <svg id="pattern-svg" viewBox="0 0 400 150" class="w-full h-full"></svg>
+          </div>
+
+          <div id="pattern-instructions" class="p-3 bg-slate-900/60 rounded-xl border border-slate-800 text-xs text-slate-300 font-mono"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Interactive Concept 1: How Pairs Work -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 sm:p-8 flex flex-col justify-between">
+        <div>
+          <div class="text-xs font-mono uppercase tracking-wider text-cyan-400 font-semibold mb-2">Interactive Demo #1</div>
+          <h2 class="text-2xl font-bold text-white mb-2">The "Tug-of-War" Pair Concept</h2>
+          <p class="text-slate-400 text-sm mb-6">
+            You never buy a currency alone; you exchange one for another. Pick a scenario below:
+          </p>
+
+          <div class="grid grid-cols-2 gap-3 mb-6">
+            <button onclick="setScenario('strongUSD')" id="btn-usd" class="p-3.5 rounded-xl border border-emerald-500 bg-emerald-500/10 text-left transition">
+              <div class="text-xs font-mono text-emerald-300 font-bold">🇺🇸 US Economy Booms</div>
+              <div class="text-sm font-semibold text-white mt-1">Dollar Strengthens</div>
+            </button>
+            <button onclick="setScenario('strongEUR')" id="btn-eur" class="p-3.5 rounded-xl border border-slate-800 bg-slate-950/40 text-left transition hover:border-slate-700">
+              <div class="text-xs font-mono text-sky-300 font-bold">🇪🇺 Eurozone Outperforms</div>
+              <div class="text-sm font-semibold text-white mt-1">Euro Strengthens</div>
+            </button>
+          </div>
+
+          <div id="pair-explainer" class="p-4 rounded-xl bg-slate-950 border border-slate-800 text-sm leading-relaxed text-slate-300"></div>
+        </div>
+        <div class="mt-4 pt-4 border-t border-slate-800/60 text-xs text-slate-500 font-mono">
+          Rule: When the Base rises, the chart goes UP. When the Quote rises, it goes DOWN.
+        </div>
+      </div>
+
+      <!-- Interactive Concept 2: The "Pip" Calculator -->
+      <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 sm:p-8">
+        <div class="text-xs font-mono uppercase tracking-wider text-emerald-400 font-semibold mb-2">Interactive Demo #2</div>
+        <h2 class="text-2xl font-bold text-white mb-2">What the Heck is a "Pip"?</h2>
+        <p class="text-slate-400 text-sm mb-6">
+          Currencies move in tiny fractions called <strong class="text-slate-200">Pips</strong> (the 4th decimal: 0.0001). Drag the sliders to calculate real trade math:
+        </p>
+
+        <div class="space-y-5">
+          <div>
+            <div class="flex justify-between text-xs font-mono mb-2">
+              <span class="text-slate-400">Position Size (Lot Size):</span>
+              <span id="lot-display" class="text-emerald-400 font-bold">1 Standard Lot ($100,000)</span>
+            </div>
+            <input id="lot-slider" type="range" min="1" max="5" value="1" step="1" class="w-full accent-emerald-500 bg-slate-800 rounded-lg cursor-pointer" oninput="calculatePip()">
+            <div class="flex justify-between text-[11px] text-slate-500 font-mono mt-1">
+              <span>0.1 (Micro)</span>
+              <span>1.0 (Standard)</span>
+              <span>5.0 (Institution)</span>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex justify-between text-xs font-mono mb-2">
+              <span class="text-slate-400">Market Movement in Pips:</span>
+              <span id="pip-display" class="text-emerald-400 font-bold">35 Pips</span>
+            </div>
+            <input id="pip-slider" type="range" min="-100" max="100" value="35" step="5" class="w-full accent-emerald-500 bg-slate-800 rounded-lg cursor-pointer" oninput="calculatePip()">
+          </div>
+
+          <div class="p-4 rounded-xl bg-slate-950 border border-slate-800 flex items-center justify-between">
+            <div>
+              <div class="text-xs text-slate-400 font-mono">Estimated Profit / Loss:</div>
+              <div id="result-display" class="text-2xl font-bold font-mono-fx text-emerald-400">+$350.00</div>
+            </div>
+            <span id="badge-display" class="text-xs px-2.5 py-1 rounded-full font-mono bg-emerald-500/10 border border-emerald-500/30 text-emerald-300">In the Green</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="max-w-7xl mx-auto w-full px-6 py-6 border-t border-slate-900 text-slate-500 text-xs text-center font-mono">
+    Educational demo only • Practice with paper money before ever risking real capital.
+  </footer>
+
+  <!-- Scripts -->
+  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+  <script type="text/javascript">
+    // 0. High-Tech Cyberpunk Terminal Unlock Animation
+    let isUnlocking = false;
+    function unlockTerminal() {
+      if (isUnlocking) return;
+      isUnlocking = true;
+
+      const gate = document.getElementById("gate-screen");
+      const card = document.getElementById("gate-card");
+      const icon = document.getElementById("gate-icon");
+      const btnText = document.getElementById("btn-text");
+      const btn = document.getElementById("unlock-btn");
+      const progress = document.getElementById("btn-progress");
+      const scanner = document.getElementById("scan-line");
+      const ripple = document.getElementById("ripple-ring");
+      const statusFooter = document.getElementById("status-footer");
+      const subHeader = document.getElementById("terminal-sub");
+
+      scanner.classList.add("scanning");
+      progress.style.width = "40%";
+      btnText.innerHTML = `<span>DECRYPTING KEYS... 42%</span>`;
+      statusFooter.innerText = "AUTHENTICATING ENCRYPTED KEYS...";
+      statusFooter.className = "text-[10px] font-mono text-emerald-400 animate-pulse";
+
+      setTimeout(() => {
+        progress.style.width = "85%";
+        btnText.innerHTML = `<span>VERIFYING ACCESS... 85%</span>`;
+        ripple.classList.add("ripple-active");
+      }, 350);
+
+      setTimeout(() => {
+        progress.style.width = "100%";
+        icon.innerText = "🔓";
+        icon.classList.add("scale-125");
+        subHeader.innerText = "✦ ACCESS GRANTED ✦";
+        subHeader.className = "text-[11px] font-mono tracking-widest text-cyan-300 uppercase font-bold";
+
+        btnText.innerHTML = `<span class="text-white font-black">PORTAL UNLOCKED</span>`;
+        btn.className = "relative w-full py-3.5 px-6 rounded-xl bg-gradient-to-r from-emerald-400 to-cyan-400 text-slate-950 font-bold font-mono text-sm tracking-wider shadow-xl shadow-cyan-500/40";
+        card.style.borderColor = "#10b981";
+      }, 700);
+
+      setTimeout(() => {
+        gate.classList.add("unlocked");
+      }, 1000);
+    }
+
+    // 1. Initialize TradingView Chart Widget
+    new TradingView.widget({
+      "autosize": true,
+      "symbol": "COINBASE:BTCUSD",
+      "interval": "60",
+      "timezone": "Etc/UTC",
+      "theme": "dark",
+      "style": "1",
+      "locale": "en",
+      "toolbar_bg": "#060913",
+      "enable_publishing": false,
+      "hide_side_toolbar": false,
+      "allow_symbol_change": true,
+      "container_id": "tradingview_chart"
+    });
+
+    // 2. News Drawer Toggle
+    function toggleNewsDrawer(show) {
+      const drawer = document.getElementById("news-drawer");
+      if (show) {
+        drawer.classList.remove("opacity-0", "pointer-events-none");
+        drawer.classList.add("opacity-100", "pointer-events-auto");
+      } else {
+        drawer.classList.add("opacity-0", "pointer-events-none");
+        drawer.classList.remove("opacity-100", "pointer-events-auto");
+      }
+    }
+
+    // 3. AI Chat Widget Logic & Knowledge Engine
+    function toggleAiChat() {
+      const chatWin = document.getElementById("ai-chat-window");
+      chatWin.classList.toggle("hidden");
+      if (!chatWin.classList.contains("hidden")) {
+        document.getElementById("chat-input").focus();
+      }
+    }
+
+    function appendMessage(sender, text) {
+      const container = document.getElementById("chat-messages");
+      const msgDiv = document.createElement("div");
+      msgDiv.className = "flex items-start gap-2 " + (sender === "user" ? "justify-end" : "");
+
+      if (sender === "bot") {
+        msgDiv.innerHTML = `
+          <div class="w-6 h-6 rounded-md bg-emerald-500/20 text-xs flex items-center justify-center flex-shrink-0">🤖</div>
+          <div class="bg-slate-900 text-slate-200 p-2.5 rounded-xl rounded-tl-none border border-slate-800">
+            ${text}
+          </div>
+        `;
+      } else {
+        msgDiv.innerHTML = `
+          <div class="bg-emerald-600 text-white p-2.5 rounded-xl rounded-tr-none">
+            ${text}
+          </div>
+        `;
+      }
+      container.appendChild(msgDiv);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function sendQuickPrompt(promptText) {
+      document.getElementById("chat-input").value = promptText;
+      handleChatSubmit(new Event('submit'));
+    }
+
+    function handleChatSubmit(e) {
+      if (e) e.preventDefault();
+      const input = document.getElementById("chat-input");
+      const query = input.value.trim();
+      if (!query) return;
+
+      // 1. Render User Message
+      appendMessage("user", query);
+      input.value = "";
+
+      // 2. Bot Knowledge Engine Simulation
+      setTimeout(() => {
+        const lower = query.toLowerCase();
+        let answer = "Great question! In Forex, always keep risk management as your top priority. Was there a specific concept like leverage, pips, or patterns you'd like me to unpack?";
+
+        if (lower.includes("pip")) {
+          answer = "A <strong>Pip</strong> (Percentage in Point) is the smallest standardized price increment in currency pairs, usually the 4th decimal place (0.0001). On a standard $100k lot, 1 pip move in EUR/USD equals roughly $10.00!";
+        } else if (lower.includes("leverage")) {
+          answer = "<strong>Leverage</strong> is borrowing capital from your broker to trade larger positions. With 100:1 leverage, $1,000 lets you control a $100,000 position. It multiplies your wins, but can also magnify losses quickly.";
+        } else if (lower.includes("spread")) {
+          answer = "The <strong>Spread</strong> is the slight gap between the Buy (Ask) price and Sell (Bid) price. It represents the broker's fee for executing your order—no hidden commissions.";
+        } else if (lower.includes("candle") || lower.includes("candlestick")) {
+          answer = "Candlesticks reveal 4 prices: <strong>Open, High, Low, and Close</strong>. Green bodies mean price rose (Close > Open); red bodies mean price fell (Close < Open). The thin wicks show the high/low extremes reached.";
+        } else if (lower.includes("lot") || lower.includes("size")) {
+          answer = "Lots measure position size in FX: <br />• <strong>Standard Lot:</strong> 100,000 units (~$10/pip)<br />• <strong>Mini Lot (0.1):</strong> 10,000 units (~$1/pip)<br />• <strong>Micro Lot (0.01):</strong> 1,000 units (~$0.10/pip).";
+        } else if (lower.includes("hour") || lower.includes("open") || lower.includes("time")) {
+          answer = "The Forex market runs <strong>24 hours a day, 5 days a week</strong>, starting Sunday at 5:00 PM EST and closing Friday at 5:00 PM EST, transitioning continuously through Sydney, Tokyo, London, and New York sessions.";
+        } else if (lower.includes("long") || lower.includes("short")) {
+          answer = "Going <strong>Long</strong> means buying because you expect prices to increase. Going <strong>Short</strong> means selling first with plans to buy back cheaper because you anticipate a price drop.";
+        }
+
+        appendMessage("bot", answer);
+      }, 400);
+    }
+
+    // 4. Candlestick Anatomy Visualizer
+    function switchCandleType(type) {
+      const svg = document.getElementById('candle-svg');
+      const btnBull = document.getElementById('btn-candle-bullish');
+      const btnBear = document.getElementById('btn-candle-bearish');
+      const bodyDot = document.getElementById('body-dot');
+      const bodyTitle = document.getElementById('body-title');
+      const bodyDesc = document.getElementById('body-desc');
+      const summary = document.getElementById('candle-summary');
+
+      if (type === 'bullish') {
+        btnBull.className = "flex-1 py-2 px-3 rounded-lg text-xs font-mono font-bold border border-emerald-500 bg-emerald-500/20 text-emerald-300 transition";
+        btnBear.className = "flex-1 py-2 px-3 rounded-lg text-xs font-mono font-bold border border-slate-800 bg-slate-900 text-slate-400 hover:border-slate-700 transition";
+        bodyDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-400";
+        bodyTitle.className = "text-xs font-mono font-bold text-emerald-300";
+        bodyDesc.innerHTML = "Shows the net move. In a green candle, the <strong>Open is at the bottom ($65k)</strong> and the <strong>Close is at the top ($69k)</strong>.";
+        summary.className = "p-3.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-xs text-slate-300";
+        summary.innerHTML = "<strong>Bullish Candle:</strong> Green indicates buyers won this round. They absorbed seller drops and pushed price up through the session.";
+
+        svg.innerHTML = `
+          <line x1="150" y1="20" x2="150" y2="60" stroke="#10b981" stroke-width="3" stroke-linecap="round" />
+          <line x1="150" y1="160" x2="150" y2="210" stroke="#10b981" stroke-width="3" stroke-linecap="round" />
+          <rect x="120" y="60" width="60" height="100" rx="4" fill="#10b981" stroke="#34d399" stroke-width="2" />
+          <circle cx="150" cy="20" r="4" fill="#22d3ee" />
+          <text x="165" y="24" fill="#22d3ee" font-size="11" font-family="JetBrains Mono" font-weight="bold">HIGH $70,000</text>
+          <line x1="180" y1="60" x2="205" y2="60" stroke="#34d399" stroke-width="1.5" stroke-dasharray="3,3" />
+          <text x="210" y="64" fill="#34d399" font-size="11" font-family="JetBrains Mono" font-weight="bold">CLOSE $69,000</text>
+          <line x1="90" y1="160" x2="120" y2="160" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="3,3" />
+          <text x="12" y="164" fill="#f59e0b" font-size="11" font-family="JetBrains Mono" font-weight="bold">OPEN $65,000</text>
+          <circle cx="150" cy="210" r="4" fill="#c084fc" />
+          <text x="165" y="214" fill="#c084fc" font-size="11" font-family="JetBrains Mono" font-weight="bold">LOW $64,000</text>
+        `;
+      } else {
+        btnBear.className = "flex-1 py-2 px-3 rounded-lg text-xs font-mono font-bold border border-rose-500 bg-rose-500/20 text-rose-300 transition";
+        btnBull.className = "flex-1 py-2 px-3 rounded-lg text-xs font-mono font-bold border border-slate-800 bg-slate-900 text-slate-400 hover:border-slate-700 transition";
+        bodyDot.className = "w-2.5 h-2.5 rounded-full bg-rose-400";
+        bodyTitle.className = "text-xs font-mono font-bold text-rose-300";
+        bodyDesc.innerHTML = "Shows the net move. In a red candle, the <strong>Open is at the top ($69k)</strong> and the <strong>Close fell to the bottom ($65k)</strong>.";
+        summary.className = "p-3.5 rounded-xl border border-rose-500/30 bg-rose-500/10 text-xs text-slate-300";
+        summary.innerHTML = "<strong>Bearish Candle:</strong> Red indicates sellers overpowered buyers. Price tried to push up, but bears dragged it down.";
+
+        svg.innerHTML = `
+          <line x1="150" y1="20" x2="150" y2="60" stroke="#f43f5e" stroke-width="3" stroke-linecap="round" />
+          <line x1="150" y1="160" x2="150" y2="210" stroke="#f43f5e" stroke-width="3" stroke-linecap="round" />
+          <rect x="120" y="60" width="60" height="100" rx="4" fill="#f43f5e" stroke="#fb7185" stroke-width="2" />
+          <circle cx="150" cy="20" r="4" fill="#22d3ee" />
+          <text x="165" y="24" fill="#22d3ee" font-size="11" font-family="JetBrains Mono" font-weight="bold">HIGH $70,000</text>
+          <line x1="90" y1="60" x2="120" y2="60" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="3,3" />
+          <text x="12" y="64" fill="#f59e0b" font-size="11" font-family="JetBrains Mono" font-weight="bold">OPEN $69,000</text>
+          <line x1="180" y1="160" x2="205" y2="160" stroke="#fb7185" stroke-width="1.5" stroke-dasharray="3,3" />
+          <text x="210" y="164" fill="#fb7185" font-size="11" font-family="JetBrains Mono" font-weight="bold">CLOSE $65,000</text>
+          <circle cx="150" cy="210" r="4" fill="#c084fc" />
+          <text x="165" y="214" fill="#c084fc" font-size="11" font-family="JetBrains Mono" font-weight="bold">LOW $64,000</text>
+        `;
+      }
+    }
+
+    // 5. Pattern Playbook Graphic Logic
+    function selectPattern(pat) {
+      const svg = document.getElementById('pattern-svg');
+      const badge = document.getElementById('pattern-badge');
+      const instructions = document.getElementById('pattern-instructions');
+      
+      const bDb = document.getElementById('btn-pat-db');
+      const bHs = document.getElementById('btn-pat-hs');
+      const bBf = document.getElementById('btn-pat-bf');
+
+      bDb.className = "w-full text-left p-4 rounded-xl border border-slate-800 bg-slate-950/40 hover:border-slate-700 transition";
+      bHs.className = "w-full text-left p-4 rounded-xl border border-slate-800 bg-slate-950/40 hover:border-slate-700 transition";
+      bBf.className = "w-full text-left p-4 rounded-xl border border-slate-800 bg-slate-950/40 hover:border-slate-700 transition";
+
+      if (pat === 'doubleBottom') {
+        bDb.className = "w-full text-left p-4 rounded-xl border border-emerald-500 bg-emerald-500/10 transition";
+        badge.className = "text-xs font-mono font-bold px-2.5 py-1 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/30";
+        badge.innerText = "Double Bottom Setup (W)";
+        instructions.innerHTML = `<strong>Entry Trigger:</strong> Wait for price to break cleanly above the neckline peak (dashed line). Stop-loss sits safely below the twin bottoms.`;
+
+        svg.innerHTML = `
+          <line x1="30" y1="120" x2="370" y2="120" stroke="#334155" stroke-width="2" stroke-dasharray="4,4" />
+          <text x="40" y="140" fill="#64748b" font-size="10" font-family="JetBrains Mono">Support Floor ($1.0500)</text>
+          <line x1="140" y1="50" x2="370" y2="50" stroke="#10b981" stroke-width="2" stroke-dasharray="3,3" />
+          <text x="270" y="44" fill="#10b981" font-size="10" font-family="JetBrains Mono">Breakout Neckline</text>
+          <path d="M 40,20 L 100,120 L 180,50 L 260,120 L 340,25" fill="none" stroke="#10b981" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+          <circle cx="100" cy="120" r="4" fill="#22d3ee" />
+          <circle cx="260" cy="120" r="4" fill="#22d3ee" />
+          <text x="75" y="112" fill="#22d3ee" font-size="10" font-family="JetBrains Mono">Bottom 1</text>
+          <text x="235" y="112" fill="#22d3ee" font-size="10" font-family="JetBrains Mono">Bottom 2</text>
+        `;
+      } else if (pat === 'headShoulders') {
+        bHs.className = "w-full text-left p-4 rounded-xl border border-rose-500 bg-rose-500/10 transition";
+        badge.className = "text-xs font-mono font-bold px-2.5 py-1 rounded bg-rose-500/10 text-rose-400 border border-rose-500/30";
+        badge.innerText = "Head & Shoulders Setup";
+        instructions.innerHTML = `<strong>Entry Trigger:</strong> Enter short the moment price breaks below the Neckline floor. Stop-loss goes right above the Right Shoulder.`;
+
+        svg.innerHTML = `
+          <line x1="30" y1="110" x2="370" y2="110" stroke="#f43f5e" stroke-width="2" stroke-dasharray="4,4" />
+          <text x="260" y="125" fill="#f43f5e" font-size="10" font-family="JetBrains Mono">Neckline Floor</text>
+          <path d="M 40,110 L 90,55 L 140,110 L 200,18 L 260,110 L 310,55 L 360,140" fill="none" stroke="#f43f5e" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
+          <circle cx="90" cy="55" r="4" fill="#38bdf8" />
+          <circle cx="200" cy="18" r="4" fill="#f43f5e" />
+          <circle cx="310" cy="55" r="4" fill="#38bdf8" />
+          <text x="60" y="45" fill="#38bdf8" font-size="9" font-family="JetBrains Mono">L. Shoulder</text>
+          <text x="185" y="12" fill="#f43f5e" font-size="10" font-family="JetBrains Mono" font-weight="bold">Head</text>
+          <text x="285" y="45" fill="#38bdf8" font-size="9" font-family="JetBrains Mono">R. Shoulder</text>
+        `;
+      } else {
+        bBf.className = "w-full text-left p-4 rounded-xl border border-cyan-500 bg-cyan-500/10 transition";
+        badge.className = "text-xs font-mono font-bold px-2.5 py-1 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/30";
+        badge.innerText = "Bull Flag Setup";
+        instructions.innerHTML = `<strong>Entry Trigger:</strong> Buy when price shoots through the upper channel line of the flag. Target height equals the initial Pole surge.`;
+
+        svg.innerHTML = `
+          <line x1="60" y1="130" x2="160" y2="25" stroke="#06b6d4" stroke-width="5" stroke-linecap="round" />
+          <text x="60" y="75" fill="#06b6d4" font-size="10" font-family="JetBrains Mono">Flagpole</text>
+          <line x1="150" y1="20" x2="270" y2="60" stroke="#64748b" stroke-width="2" stroke-dasharray="3,3" />
+          <line x1="140" y1="50" x2="260" y2="90" stroke="#64748b" stroke-width="2" stroke-dasharray="3,3" />
+          <path d="M 160,25 L 180,55 L 210,38 L 230,70 L 255,55 L 340,15" fill="none" stroke="#22d3ee" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+          <circle cx="270" cy="45" r="4" fill="#a7f3d0" />
+          <text x="275" y="35" fill="#a7f3d0" font-size="10" font-family="JetBrains Mono">Breakout Target 🚀</text>
+        `;
+      }
+    }
+
+    // 6. Pair Scenario Explainer Logic
+    function setScenario(type) {
+      const explainer = document.getElementById("pair-explainer");
+      const btnUsd = document.getElementById("btn-usd");
+      const btnEur = document.getElementById("btn-eur");
+
+      if (type === 'strongUSD') {
+        explainer.innerHTML = `
+          <strong class="text-emerald-400">Scenario: EUR/USD Drops 📉</strong><br />
+          Because the <strong>USD</strong> is the second currency (Quote) and getting stronger, it takes <em>fewer</em> Dollars to buy 1 Euro. Traders short EUR/USD.
+        `;
+        btnUsd.className = "p-3.5 rounded-xl border border-emerald-500 bg-emerald-500/10 text-left transition";
+        btnEur.className = "p-3.5 rounded-xl border border-slate-800 bg-slate-950/40 text-left transition hover:border-slate-700";
+      } else {
+        explainer.innerHTML = `
+          <strong class="text-sky-400">Scenario: EUR/USD Climbs 📈</strong><br />
+          Because the <strong>EUR</strong> is the first currency (Base) and getting stronger, 1 Euro becomes worth more Dollars. Traders go long EUR/USD.
+        `;
+        btnEur.className = "p-3.5 rounded-xl border border-sky-500 bg-sky-500/10 text-left transition";
+        btnUsd.className = "p-3.5 rounded-xl border border-slate-800 bg-slate-950/40 text-left transition hover:border-slate-700";
+      }
+    }
+
+    // 7. Pip Math Simulator Logic
+    function calculatePip() {
+      const lotSlider = document.getElementById("lot-slider").value;
+      const pipSlider = document.getElementById("pip-slider").value;
+      
+      const lotValueMap = {
+        1: { name: "1 Standard Lot ($100k)", perPip: 10 },
+        2: { name: "2 Standard Lots ($200k)", perPip: 20 },
+        3: { name: "3 Standard Lots ($300k)", perPip: 30 },
+        4: { name: "4 Standard Lots ($400k)", perPip: 40 },
+        5: { name: "5 Standard Lots ($500k)", perPip: 50 }
+      };
+
+      const selectedLot = lotValueMap[lotSlider];
+      document.getElementById("lot-display").innerText = selectedLot.name;
+      document.getElementById("pip-display").innerText = (pipSlider > 0 ? "+" : "") + pipSlider + " Pips";
+
+      const totalPnL = selectedLot.perPip * pipSlider;
+      const resultDisplay = document.getElementById("result-display");
+      const badgeDisplay = document.getElementById("badge-display");
+
+      if (totalPnL >= 0) {
+        resultDisplay.innerText = "+$" + totalPnL.toFixed(2);
+        resultDisplay.className = "text-2xl font-bold font-mono-fx text-emerald-400";
+        badgeDisplay.innerText = "In Profit";
+        badgeDisplay.className = "text-xs px-2.5 py-1 rounded-full font-mono bg-emerald-500/10 border border-emerald-500/30 text-emerald-300";
+      } else {
+        resultDisplay.innerText = "-$" + Math.abs(totalPnL).toFixed(2);
+        resultDisplay.className = "text-2xl font-bold font-mono-fx text-rose-400";
+        badgeDisplay.innerText = "In Drawdown";
+        badgeDisplay.className = "text-xs px-2.5 py-1 rounded-full font-mono bg-rose-500/10 border border-rose-500/30 text-rose-300";
+      }
+    }
+
+    // Initial boots
+    switchCandleType('bullish');
+    selectPattern('doubleBottom');
+    setScenario('strongUSD');
+    calculatePip();
+  </script>
+</body>
+</html>
